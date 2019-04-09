@@ -5,7 +5,7 @@ class Cromosoma
 
     def initialize(size:7, aptitud:-100)
         self.aptitud = -aptitud
-        self.tamano = size
+        self.tamano = size.to_f
         self.alelo = Array.new (size) {rand size}
         
     end
@@ -24,7 +24,7 @@ class Cromosoma
             end
         end
         @alelo.each_with_index do |variable, index| 
-            puts ("el valor en la posición #{index} es: #{variable}")
+            #puts ("el valor en la posición #{index} es: #{variable}")
         end
     end
 
@@ -44,8 +44,29 @@ class Cromosoma
 
     end
 
-    def cruzar (cromosoma) 
-    
+
+    def cruzar (cromo) 
+        #FALTA ANALIZAR EL CASO EN EL QUE EL RAND DA 0 O EL TAMAÑO DEL TABLERO
+        pos = rand() 
+        print @alelo 
+        print "\n"
+        print cromo.alelo
+        print "\n"
+        
+        head1 = self.alelo.slice(0, pos*tamano)
+        tail1 = self.alelo.slice(pos*tamano , self.tamano)
+
+        head2 =cromo.alelo.slice(0, pos*tamano)
+        tail2 = cromo.alelo.slice(pos*tamano, cromo.alelo.length)
+
+        self.alelo= head1 +tail2
+        cromo= head2 + tail1
+     
+        puts "cruzados"
+        print @alelo 
+        print "\n"
+        print cromo
+        print "\n"
     end
 
     
@@ -73,4 +94,5 @@ end
 
 generator = Random.new(3) 
 cro = Cromosoma.new (5)
-cro.mutar
+cro2 = Cromosoma.new(5)
+cro.cruzar(cro2)
