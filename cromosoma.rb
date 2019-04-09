@@ -10,11 +10,11 @@ class Cromosoma
         
     end
 
-    
+
     def initialize(num)
         @aptitud = -100
         @alelo = Array.new(num,num)
-        
+        @tamano = num.to_f
         i=0
         while i <num do 
             gen= rand(num)
@@ -30,8 +30,17 @@ class Cromosoma
 
     
 
-    def mutar 
-       
+    def mutar ##Mutación por intercambio de dos posiciones del arreglo
+    
+        print "#{@alelo} \n"
+        pos1 = rand()
+        pos2 = rand()
+        @alelo[(pos1*tamano).to_i], @alelo[(pos2*tamano).to_i] = @alelo[(pos2*tamano).to_i], @alelo[(pos1*tamano).to_i]
+        
+        puts "mutado"
+        print "#{@alelo} \n"
+        
+        
 
     end
 
@@ -64,4 +73,4 @@ end
 
 generator = Random.new(3) 
 cro = Cromosoma.new (5)
-cro.describe
+cro.mutar
