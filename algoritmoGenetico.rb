@@ -9,52 +9,6 @@ require 'bundler/setup'
 # Versión: 
 # Tiempo dedicado: 
 
-############################################################
-# 
-############################################################
-class Cromosoma
-
-  def initialize(num)
-
-    @aptitud = 0
-    @cromosoma = Array.new(num,num)
-     
-    i=0
-
-    while i<num do
-
-      gen = rand(num)
-
-      unless @cromosoma.include?(gen)
-        @cromosoma[i]=gen
-        i += 1
-      end
-    end 
-
-    @cromosoma.each_with_index do |variable, index|
-	puts("el valor en la posición #{index} es: #{variable}")
-    end
-
-  end
-
-
-  def mutar
-    
-  end
-
-
-  def cruce
-    
-  end
-
-  def asignarAptitud (aptitud)
-    @aptitud = aptitud
-  end
-
-  def consultarAptitud
-    @aptitud
-  end
-end
 
 ############################################################
 # 

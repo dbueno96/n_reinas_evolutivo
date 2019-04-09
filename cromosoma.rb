@@ -9,11 +9,29 @@ class Cromosoma
         self.alelo = Array.new (size) {rand size}
         
     end
+
+    
+    def initialize(num)
+        @aptitud = -100
+        @alelo = Array.new(num,num)
+        
+        i=0
+        while i <num do 
+            gen= rand(num)
+            unless @alelo.include?(gen) 
+                @alelo[i] = gen
+                i +=1 
+            end
+        end
+        @alelo.each_with_index do |variable, index| 
+            puts ("el valor en la posición #{index} es: #{variable}")
+        end
+    end
+
     
 
     def mutar 
        
-        puts rand *10 
 
     end
 
@@ -43,10 +61,7 @@ class Cromosoma
     end
     
 end
+
 generator = Random.new(3) 
-cro = Cromosoma.new 
-
+cro = Cromosoma.new (5)
 cro.describe
-
-
-
