@@ -40,8 +40,11 @@ class Cromosoma
         puts "mutado"
         print "#{@alelo} \n"
         
-        
 
+        
+        arrayAl = @alelo
+
+        return @alelo
     end
 
 
@@ -67,6 +70,7 @@ class Cromosoma
         print "\n"
         print cromo
         print "\n"
+
     end
 
     

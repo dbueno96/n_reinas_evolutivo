@@ -1,18 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
+load 'cromosoma.rb'
 
-# Programa: algoritmoGenetico.rb
-# Autor: 
-# Email: 
-# Fecha creación: 
-# Fecha última modificación: 
-# Versión: 
-# Tiempo dedicado: 
-
-
-############################################################
-# 
-############################################################
 class Algoritmo_Genetico_Para_NReinas
 
   def initialize(numReinas, numCromosomas)
@@ -32,9 +21,61 @@ class Algoritmo_Genetico_Para_NReinas
   end
 
 
-  def evaluarCromosoma
+  def evaluarCromosoma(n)
+    cromosoma = Cromosoma.new(n)
+    arrayCromoMutate = cromosoma.mutar()
+
+    rightDia = [n]
+    leftDia = [n]
+    numberRpeatsRight = Array.new(n*2, 0)
+    numberRpeatsLeft = Array.new(n*2, 0)
+    rightTable = Array.new(n*2, "")
+    leftTable = Array.new(n*2, "")
+
+    i=0
+    queensAttack =0
     
+    while i < n do
+      rightMoment = i - arrayCromoMutate[i] + arrayCromoMutate.length - 1 
+      rightDia.push(rightMoment)  #Right diags
+      numberRpeatsRight[rightMoment] = numberRpeatsRight[rightMoment] + 1
+
+      leftMoment= i + arrayCromoMutate[i] 
+      leftDia.push(leftMoment)  #left diags
+      numberRpeatsLeft[leftMoment] = numberRpeatsLeft[leftMoment] + 1
+
+      i+=1
+    end
+
+    i=0
+    while i < n do
+      rightMoment = i - arrayCromoMutate[i] + arrayCromoMutate.length - 1 
+      leftMoment= i + arrayCromoMutate[i]
+
+      if numberRpeatsRight[rightMoment] > 1 or numberRpeatsLeft[leftMoment] > 1
+        queensAttack+=1
+      end
+      i+=1
+    end
+
+    print queensAttack
+    
+    print "#{rightDia} \n"
+    print "#{leftDia} \n"
+    
+    print "#{numberRpeatsRight} \n"
+    print "#{numberRpeatsLeft} \n"
+
+    print "#{rightTable} \n"
+    print "#{leftTable} \n"
+
+    return queensAttack
+
   end
+
+  
+
+
 end
 
 ############################################################
@@ -42,34 +83,7 @@ end
 ############################################################
 begin
 
-#cromosoma = Cromosoma.new(10)
+cromosoma = Cromosoma.new(10)
 algoritmo = Algoritmo_Genetico_Para_NReinas.new(8,8)
+algoritmo.evaluarCromosoma(10)
 end
-
-
-
-
-
-
-
-
-
-=begin
-ataque = 0
-for i in (0..(numero-2))
-	#puts (vec[i])
-
-	for j in ((i+1)..(numero-1))
-		if (i+vec[i]==j+vec[j])
-			ataque += 1
-		end
-
-		if (i-vec[i]==j-vec[j])
-			ataque += 1
-		end
-	end
-end
-=end
-
-
-
