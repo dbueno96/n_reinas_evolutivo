@@ -3,14 +3,6 @@ class Cromosoma
     attr_accessor :alelo, :aptitud
     attr_accessor :tamano
 
-    def initialize(size:7, aptitud:-100)
-        self.aptitud = -aptitud
-        self.tamano = size.to_f
-        self.alelo = Array.new (size) {rand size}
-        
-    end
-
-
     def initialize(num)
         @aptitud = -100
         @alelo = Array.new(num,num)
@@ -35,7 +27,8 @@ class Cromosoma
         print "#{@alelo} \n"
         pos1 = rand()
         pos2 = rand()
-        @alelo[(pos1*tamano).to_i], @alelo[(pos2*tamano).to_i] = @alelo[(pos2*tamano).to_i], @alelo[(pos1*tamano).to_i]
+        @alelo[(pos1*tamano).to_i], @alelo[(pos2*tamano).to_i] = @alelo[(pos2*tamano).to_i],
+                                                                 @alelo[(pos1*tamano).to_i]
         
         puts "mutado"
         print "#{@alelo} \n"
