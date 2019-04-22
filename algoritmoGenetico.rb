@@ -1,5 +1,4 @@
-require 'rubygems'
-require 'bundler/setup'
+
 load 'cromosoma.rb'
 
 class Algoritmo_Genetico_Para_NReinas
@@ -33,8 +32,7 @@ class Algoritmo_Genetico_Para_NReinas
       i+=1
     end
 
-    print summationUi
-    print "suma \n"
+    print "suma: #{summationUi}\n"
 
     probability = Array.new(n)
 
@@ -42,8 +40,7 @@ class Algoritmo_Genetico_Para_NReinas
     while i<n do
       Float plty = (@poblacion[i].aptitud*-1).to_f/summationUi.to_f
       probability[i] = plty
-      print plty
-      print "proba \n"
+      print "proba: #{plty}\n"
       i+=1
     end
     
@@ -193,13 +190,13 @@ class Algoritmo_Genetico_Para_NReinas
     
     chromo.aptitud = queensAttack #Set the aptitud value of the chromosome
 
-    print queensAttack
+    puts "ataques: #{queensAttack}"
     
-    print "#{rightDia} \n"
-    print "#{leftDia} \n"
+    print "right diagonal: #{rightDia} \n"
+    print "left diagonal:  #{leftDia} \n"
     
-    print "#{numberRpeatsRight} \n"
-    print "#{numberRpeatsLeft} \n"
+    print "numberRpeatsR: #{numberRpeatsRight} \n"
+    print "numberRpeatsL: #{numberRpeatsLeft} \n\n"
 
     return queensAttack
 
@@ -217,10 +214,10 @@ cromosoma = Cromosoma.new(10)
 algoritmo = Algoritmo_Genetico_Para_NReinas.new(6,6)
 algoritmo.evaluateAllChromosomes()
 prueba = algoritmo.tournamentSelection(4)
-print prueba
+print "PRUEBA #{prueba} \n"
 ejemplo = algoritmo.auxSamplingSelection()
-print ejemplo
+print "EJEMPLO #{ejemplo} \n"
 ejmploSeleccionSam = algoritmo.SamplingSelection(5)
-print ejmploSeleccionSam
+print "EJEMPLO2 #{ejmploSeleccionSam}\n"
 
 end
