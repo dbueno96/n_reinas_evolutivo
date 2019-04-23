@@ -1,10 +1,10 @@
-
+require 'rubygems'
+require 'bundler/setup'
 load 'cromosoma.rb'
 
 class Algoritmo_Genetico_Para_NReinas
 
   def initialize(numReinas, numCromosomas)
-    
     @poblacion = Array.new(numCromosomas)
 
     for i in (0..numCromosomas-1)
@@ -14,13 +14,98 @@ class Algoritmo_Genetico_Para_NReinas
   end
 
 
-  def executeAlg(generaciones)
-
-    #First part of the algorithm
 
 
+  def executeAlg(generaciones, numberSelection, ktimes) #Probar este método porque solo lo hice y no lo probe
+    evaluateAllChromosomes()
+
+    i=0
+    while i<generaciones do 
+
+      #Evaluate 
+      if bestAptitud()[0] == 0
+
+        return bestAptitud()[1]
+        break
+      end
+      
+      #Selection
+      arraySelection = [ktimes] #Mating pool
+      indexSelection = [ktimes]
+
+      if numberSelection==1
+        arraySelection = tournamentSelection(ktimes)
+  
+      elsif numberSelection==2
+        arraySelection = samplingSelection(ktimes)
+
+      elsif numberSelection==3
+        for i in (0...ktimes-1)
+          arraySelection[i] = rouletteSelection()[0]
+        end
+      end
+      
+      #Reproduction
+      for j in (0...numberSelection.length-1)
+        arraySelection[j].mutar
+      end
+
+      #Replace
+      n=0
+      nHalf=ktimes/2
+
+        #Immediate replacement
+      for j in (0...nHalf-1)
+        @poblacion[indexSelection[i]] = arraySelection[i]
+      end
+
+        #Sort replacement, change the worst chromosomes for the ktimes/2 selected cromosomes
+      worstArray = worstAptitudIndexes(halfKTimes)
+      for j in (0...nHalf-1)
+        @poblacion[worstArray[j]] = arraySelection[i]
+      end      
+
+      i+=1
+    end
+
+    return bestAptitud()[1]
     
   end
+
+
+
+
+  def worstAptitudIndexes(halfKTimes) #Probar este método
+    worstPopu = [halfKTimes]
+    worstPopulation = @poblacion.sort_by {|x| x.aptitud}
+
+    for i in (0...halfKTimes-1)
+      worstPopu[i].initIndex = worstPopulation[i]
+    end
+
+    return worstPopu
+  end
+
+
+
+  
+  def bestAptitud() #Probar este método
+    bestApti = @poblacion[0].aptitud*-1
+    index = 0
+
+    for i in (0...@poblacion.length-1)
+      if @poblacion[i].aptitud*-1 < bestApti
+        bestApti = @poblacion[i].aptitud*-1
+        index = i
+      end
+    
+    end
+
+    return bestApti, i
+
+  end
+
+
 
   def auxSamplingSelection()
     n = @poblacion.length
@@ -32,15 +117,12 @@ class Algoritmo_Genetico_Para_NReinas
       i+=1
     end
 
-    print "suma: #{summationUi}\n"
-
     probability = Array.new(n)
 
     i=0
     while i<n do
       Float plty = (@poblacion[i].aptitud*-1).to_f/summationUi.to_f
       probability[i] = plty
-      print "proba: #{plty}\n"
       i+=1
     end
     
@@ -65,6 +147,8 @@ class Algoritmo_Genetico_Para_NReinas
     return qiScores
 
   end
+
+
 
   def SamplingSelection(kSelect)
     selectedIndexes = Array.new(kSelect) #Array that will contain the indexes of the selected chromosomes
@@ -91,8 +175,8 @@ class Algoritmo_Genetico_Para_NReinas
   end
 
 
-  def rouletteSelection() #PArcialmente terminada
 
+  def rouletteSelection()
     n = @poblacion.length
     summationUi = 0
 
@@ -111,8 +195,10 @@ class Algoritmo_Genetico_Para_NReinas
       i+=1
     end
 
+    return @poblacion[i], i
 
   end
+
 
 
   def tournamentSelection(kSelection) #Funtion for select cromosomes taking 3 rand, k times
@@ -140,6 +226,8 @@ class Algoritmo_Genetico_Para_NReinas
 
   end
 
+
+
   def evaluateAllChromosomes() #Evaluate every chromosome of the population
 
     i=0
@@ -150,7 +238,9 @@ class Algoritmo_Genetico_Para_NReinas
 
   end
 
-  def evaluateIndividualChromosome(chromo)
+
+
+  def evaluateIndividualChromosome(chromo) #Find the aptitud for every chromosome
     n = chromo.tamano 
     arrayCromo= chromo.alelo
 
@@ -162,7 +252,7 @@ class Algoritmo_Genetico_Para_NReinas
     i=0
     queensAttack =0
     
-    while i < n do
+    while i < n do 
       rightMoment = i - arrayCromo[i] + arrayCromo.length - 1 
 
       rightDia.push(rightMoment)  #Right diags
@@ -190,13 +280,13 @@ class Algoritmo_Genetico_Para_NReinas
     
     chromo.aptitud = queensAttack #Set the aptitud value of the chromosome
 
-    puts "ataques: #{queensAttack}"
+    print queensAttack
     
-    print "right diagonal: #{rightDia} \n"
-    print "left diagonal:  #{leftDia} \n"
+    print "#{rightDia} \n"
+    print "#{leftDia} \n"
     
-    print "numberRpeatsR: #{numberRpeatsRight} \n"
-    print "numberRpeatsL: #{numberRpeatsLeft} \n\n"
+    print "#{numberRpeatsRight} \n"
+    print "#{numberRpeatsLeft} \n"
 
     return queensAttack
 
@@ -214,10 +304,12 @@ cromosoma = Cromosoma.new(10)
 algoritmo = Algoritmo_Genetico_Para_NReinas.new(6,6)
 algoritmo.evaluateAllChromosomes()
 prueba = algoritmo.tournamentSelection(4)
-print "PRUEBA #{prueba} \n"
+print prueba
 ejemplo = algoritmo.auxSamplingSelection()
-print "EJEMPLO #{ejemplo} \n"
+print ejemplo
 ejmploSeleccionSam = algoritmo.SamplingSelection(5)
-print "EJEMPLO2 #{ejmploSeleccionSam}\n"
+print ejmploSeleccionSam
+hola = @poblacion.aptitud.sort
+print hola
 
 end

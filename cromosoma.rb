@@ -1,21 +1,22 @@
 class Cromosoma
     
     attr_accessor :alelo, :aptitud
-    attr_accessor :tamano
+    attr_accessor :tamano, :initIndex
 
     def initialize(num)
-        self.aptitud = -100
-        self.alelo = Array.new(num,num)
-        self.tamano = num.to_f
+        @aptitud = -100
+        @alelo = Array.new(num,num)
+        @tamano = num.to_f
         i=0
         while i <num do 
             gen= rand(num)
-            unless self.alelo.include?(gen) 
-               self.alelo[i] = gen
+            unless @alelo.include?(gen) 
+                @alelo[i] = gen
                 i +=1 
+                initIndex = i
             end
         end
-       self.alelo.each_with_index do |variable, index| 
+        @alelo.each_with_index do |variable, index| 
             #puts ("el valor en la posición #{index} es: #{variable}")
         end
     end
@@ -24,30 +25,30 @@ class Cromosoma
 
     def mutar ##Mutación por intercambio de dos posiciones del arreglo
     
-       # print "#{self.alelo} \n"
+        print "#{@alelo} \n"
         pos1 = rand()
         pos2 = rand()
-       self.alelo[(pos1*tamano).to_i],self.alelo[(pos2*tamano).to_i] =self.alelo[(pos2*tamano).to_i],
-                                                                self.alelo[(pos1*tamano).to_i]
+        @alelo[(pos1*tamano).to_i], @alelo[(pos2*tamano).to_i] = @alelo[(pos2*tamano).to_i],
+                                                                 @alelo[(pos1*tamano).to_i]
         
-        #puts "mutado"
-        #print "#{self.alelo} \n"
+        puts "mutado"
+        print "#{@alelo} \n"
         
 
         
-        arrayAl =self.alelo
+        arrayAl = @alelo
 
-        returnself.alelo
+        return @alelo
     end
 
 
     def cruzar (cromo) 
         #FALTA ANALIZAR EL CASO EN EL QUE EL RAND DA 0 O EL TAMAÑO DEL TABLERO
         pos = rand() 
-        # print self.alelo 
-        # print "\n"
-        # print cromo.alelo
-        # print "\n"
+        print @alelo 
+        print "\n"
+        print cromo.alelo
+        print "\n"
         
         head1 = self.alelo.slice(0, pos*tamano)
         tail1 = self.alelo.slice(pos*tamano , self.tamano)
@@ -58,11 +59,11 @@ class Cromosoma
         self.alelo= head1 +tail2
         cromo= head2 + tail1
      
-        # puts "cruzados"
-        # print self.alelo 
-        # print "\n"
-        # print cromo
-        # print "\n"
+        puts "cruzados"
+        print @alelo 
+        print "\n"
+        print cromo
+        print "\n"
 
     end
 
@@ -70,21 +71,21 @@ class Cromosoma
     def mostrar 
         self.alelo.each do | element |
             self.tamano.times do 
-         #       print 'o '
+                print 'o '
             end
-           # print "\n"
+            print "\n"
         end
     end
 
     def describe 
-        # puts "El tamaño de cromosoma es #{self.tamano}"
-        # puts "El alelo es #{self.alelo}"
+        puts "El tamaño de cromosoma es #{self.tamano}"
+        puts "El alelo es #{self.alelo}"
         reinas = ""
         self.alelo.each_with_index do |element, i|
             reinas += "(#{i}, #{self.alelo[i]}) " 
             
         end
-       # puts "Entonces las reinas están en #{reinas} " 
+        puts "Entonces las reinas están en #{reinas} " 
     end
     
 end
