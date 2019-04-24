@@ -15,7 +15,7 @@ class Algoritmo_Genetico_Para_NReinas
 
 
 
-  def execute( seleccion, reemplazo,generaciones, ktimes=3) #Probar este método porque solo lo hice y no lo probe
+  def execute( seleccion, reemplazo,generaciones, ktimes) #Probar este método porque solo lo hice y no lo probe
     evaluateAllChromosomes()  
     puts "generaciones #{generaciones}"
     puts "ktimes #{ktimes}"
@@ -35,15 +35,11 @@ class Algoritmo_Genetico_Para_NReinas
 
       if seleccion==1
         indexSelection = torneo(ktimes)
-  
       elsif seleccion==2
         indexSelection =  samplingSelection(ktimes)
+      elsif seleccion==3
+          indexSelection = rouletteSelection(ktimes)
       end
-      # elsif seleccion==3
-      #   for i in (0...ktimes-1)
-      #     indexSelection = rouletteSelection()[0]
-      #   end
-      # end
       
       arraySelection =[]
       indexSelection.each do |i|
@@ -96,14 +92,13 @@ class Algoritmo_Genetico_Para_NReinas
     
     ##ORGANIZAR ARREGLO DE MANERA CRECIENTE EN APTITUD
     @poblacion.sort!{|a,b| b.aptitud <=> a.aptitud } 
-    @poblacion.each_with_index do |cromo, i| 
-      puts "#{i}: #{cromo.aptitud }"
-    end
+    # @poblacion.each_with_index do |cromo, i| 
+    #   puts "#{i}: #{cromo.aptitud }"
+    # end
   
-  
-  @poblacion.slice(selected.length..@poblacion.length)
+  @poblacion = @poblacion.slice(selected.length..@poblacion.length)
   @poblacion.concat(hijos)
-
+  @poblacion.shuffle
   end
 
   def worstAptitudIndexes(halfKTimes) #Probar este método
@@ -210,26 +205,30 @@ class Algoritmo_Genetico_Para_NReinas
 
 
 
-  def rouletteSelection()
+  def rouletteSelection(kselect)
     n = @poblacion.length
     summationUi = 0
+    selectedIndexes = []
+    kselect.times do
+      i=0
+      while i<n do
+        summationUi = summationUi + @poblacion[i].aptitud*-1
+        i+=1
+      end
 
-    i=0
-    while i<n do
-      summationUi = summationUi + @poblacion[i].aptitud*-1
-      i+=1
+      limit = rand(summationUi)
+      aux = @poblacion.aptitud[0]
+      i=1
+
+      while aux<limit do
+        aux = aux + @poblacion.aptitud[i]
+        i+=1
+      end
+
+
     end
-
-    limit = rand(summationUi)
-    aux = @poblacion.aptitud[0]
-    i=1
-
-    while aux<limit do
-      aux = aux + @poblacion.aptitud[i]
-      i+=1
-    end
-
-    return @poblacion[i], i
+    selectedIndexes.push(i)
+    return selectedIndexes.uniq.compact
 
   end
 
@@ -365,17 +364,116 @@ end
 
 begin
 
-cromosoma = Cromosoma.new(10)
+# cromosoma = Cromosoma.new(10)
+# algoritmo = Algoritmo_Genetico_Para_NReinas.new(5,16)
+# puts "inicial"
+# algoritmo.poblacion.each do |c|
+#   print "#{c.alelo}\n"
+# end
+# algoritmo.execute(seleccion=2,reemplazo=2,generaciones =15000  )
+# puts "final"
+# algoritmo.poblacion.each do |c|
+#   print "#{c.alelo}\n"
+# end
+
+individualSize =0
+while individualSize ==0
+  puts "Indique el tamaño de cada individuo (Tablero)"
+  individualSize = gets.chomp.to_i
+  if individualSize<= 0 
+    puts "Solo se permiten números positivos"
+    individualSize=0
+  end
+  print "\n"
+end
+
+population = 0
+while population == 0 
+  puts "Indique el número de individuos de la población"
+  population = gets.chomp.to_i
+  if population<=0
+    puts "Solo se permiten números positivos"
+    population=0
+  end
+  print "\n"
+end
+
+generations = 0
+while generations == 0
+  puts "Indique el número de iteraciones a realizar \n"
+  generations = gets.chomp.to_i
+  if generations<=0
+    puts "Solo se permiten números positivos"
+    generations=0
+  end
+  print "\n"
+end
+
+selectionMethod =0 
+while selectionMethod == 0 
+  puts "Indique el número del método de selección deseado"
+  puts "1. Selección por Sorteo"
+  puts "2. Selección por Torneo"
+  puts "3. Selección por Ruleta"
+  selectionMethod = gets.chomp.to_i
+  if not (1..3).include? selectionMethod
+    puts "Opción no válida. Escoja solo una de las opciones indicadas."
+    selectionMethod =0
+  end
+  print "\n"
+end
+
+insertMethod = 0
+while insertMethod == 0
+  puts "Indique el número del método de inserción deseado"
+  puts "1. Reemplazo Inmediato"
+  puts "2. Remplazo por Inserción"
+  insertMethod = gets.chomp.to_i
+  if not (1..2).include? selectionMethod
+    puts "Opción no válida. Escoja solo una de las opciones indicadas."
+    insertMethod =0
+  end
+  print "\n"
+end
+
+
+
+poolSize =0
+while poolSize== 0
+  puts "Indique el número máximo de individuos seleccionados por generación"
+  poolSize= gets.chomp.to_i
+  if poolSize<=0
+    puts "Solo se permiten números positivos"
+  end
+  if population< poolSize  
+    puts"La cantidad de individuos seleccionados no debe ser mayor al total de la población"
+    poolSize = 0
+  end
+  print "\n"
+end
+
+puts "Número de Generaciones: #{generations}"
+puts "Tamaño Cromosoma: #{individualSize} Tamaño Población: #{population}"
+puts "Seleccionados por generacion: #{poolSize}"
+if selectionMethod== 1
+  puts "Método de Selección: Sorteo"
+elsif selectionMethod==2 
+  puts "Método de Selección: Torneo"
+elsif selectionMethod==3
+  puts "Método de Selecció: Ruleta"
+end
+
+if insertMethod==1 
+  puts "Método de Reemplazo: Inmmediato"
+elsif insertMethod==2
+  puts "Método de Reemplazo: Inserción"
+end
+print "\n"
+
 algoritmo = Algoritmo_Genetico_Para_NReinas.new(5,16)
-puts "inicial"
-algoritmo.poblacion.each do |c|
-  print "#{c.alelo}\n"
-end
-algoritmo.execute(seleccion=1,reemplazo=1,generaciones =15000  )
-puts "final"
-algoritmo.poblacion.each do |c|
-  print "#{c.alelo}\n"
-end
+algoritmo.execute(selectionMethod, insertMethod,generations, poolSize=10)
+
+
 
 
 # algoritmo.evaluateAllChromosomes()
