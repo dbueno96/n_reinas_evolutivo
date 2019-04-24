@@ -1,12 +1,12 @@
-require 'rubygems'
-require 'bundler/setup'
+
 load 'cromosoma.rb'
 
 class Algoritmo_Genetico_Para_NReinas
-
+  attr_accessor :poblacion, :myaptitudes, :prom
   def initialize(numReinas, numCromosomas)
     @poblacion = Array.new(numCromosomas)
-
+    @myaptitudes= []
+    @prom = []
     for i in (0..numCromosomas-1)
       @poblacion[i] = Cromosoma.new(numReinas)
     end
@@ -15,65 +15,96 @@ class Algoritmo_Genetico_Para_NReinas
 
 
 
-
-  def executeAlg(generaciones, numberSelection, ktimes) #Probar este método porque solo lo hice y no lo probe
-    evaluateAllChromosomes()
-
-    i=0
-    while i<generaciones do 
-
+  def execute( seleccion, reemplazo,generaciones, ktimes=3) #Probar este método porque solo lo hice y no lo probe
+    evaluateAllChromosomes()  
+    puts "generaciones #{generaciones}"
+    puts "ktimes #{ktimes}"
+    generaciones.times do |i|
       #Evaluate 
-      if bestAptitud()[0] == 0
-
+      best = bestAptitud()
+      if best[0] == 0
+        print "promedio de mejores aptitudes: #{@myaptitudes.reduce(:+).fdiv(@myaptitudes.size)}\n"
+        print "promedio de aptitudes: #{@prom.reduce(:+).fdiv(@prom.size)}\n"
+        puts "genaración #{i}"
         return bestAptitud()[1]
         break
       end
-      
+
       #Selection
-      arraySelection = [ktimes] #Mating pool
-      indexSelection = [ktimes]
+      indexSelection = []
 
-      if numberSelection==1
-        arraySelection = tournamentSelection(ktimes)
+      if seleccion==1
+        indexSelection = torneo(ktimes)
   
-      elsif numberSelection==2
-        arraySelection = samplingSelection(ktimes)
-
-      elsif numberSelection==3
-        for i in (0...ktimes-1)
-          arraySelection[i] = rouletteSelection()[0]
-        end
+      elsif seleccion==2
+        indexSelection =  samplingSelection(ktimes)
+      end
+      # elsif seleccion==3
+      #   for i in (0...ktimes-1)
+      #     indexSelection = rouletteSelection()[0]
+      #   end
+      # end
+      
+      arraySelection =[]
+      indexSelection.each do |i|
+        arraySelection.push(@poblacion[i])
+      end
+      #Reproduction
+      arraySelection.each do |cromo|
+        cromo.mutar
       end
       
-      #Reproduction
-      for j in (0...numberSelection.length-1)
-        arraySelection[j].mutar
-      end
-
       #Replace
-      n=0
-      nHalf=ktimes/2
-
-        #Immediate replacement
-      for j in (0...nHalf-1)
-        @poblacion[indexSelection[i]] = arraySelection[i]
+      ##arraySelection CORRESPONDE A LOS HIJOS EN ESTE MOMENTO PORQUE YA MUTÓ
+      if reemplazo == 1
+        reemplazoInmediato(indexSelection, arraySelection) 
+      elsif reemplazo == 2
+        reemplazoInsercion(indexSelection, arraySelection) 
       end
 
-        #Sort replacement, change the worst chromosomes for the ktimes/2 selected cromosomes
-      worstArray = worstAptitudIndexes(halfKTimes)
-      for j in (0...nHalf-1)
-        @poblacion[worstArray[j]] = arraySelection[i]
-      end      
-
-      i+=1
+      
     end
 
+      
+    ##RETORNA EL INDEX DEL CROMOSOMA CON MEJOR APTITUD
+    print "promedio de mejores aptitudes: #{@myaptitudes.reduce(:+).fdiv(@myaptitudes.size)}\n"
+    print "promedio de aptitudes: #{@prom.reduce(:+).fdiv(@prom.size)}\n"
     return bestAptitud()[1]
     
   end
 
 
 
+  def reemplazoInmediato(selected, hijos)
+    
+    # @poblacion.each do |cromo|
+    #   print "#{cromo.alelo}\n"
+    # end
+
+    @poblacion.reject!.each_with_index{|e, i| selected.include? i }
+    #puts "removed"
+    # @poblacion.each do |cromo|
+    #   print "#{cromo.alelo}\n"
+    # end
+
+    @poblacion.concat(hijos)
+    
+
+  end
+
+  def reemplazoInsercion(selected, hijos)
+    
+    ##ORGANIZAR ARREGLO DE MANERA CRECIENTE EN APTITUD
+    @poblacion.sort!{|a,b| b.aptitud <=> a.aptitud } 
+    @poblacion.each_with_index do |cromo, i| 
+      puts "#{i}: #{cromo.aptitud }"
+    end
+  
+  
+  @poblacion.slice(selected.length..@poblacion.length)
+  @poblacion.concat(hijos)
+
+  end
 
   def worstAptitudIndexes(halfKTimes) #Probar este método
     worstPopu = [halfKTimes]
@@ -100,7 +131,12 @@ class Algoritmo_Genetico_Para_NReinas
       end
     
     end
-
+    @myaptitudes.push(bestApti)
+    mean = 0
+    @poblacion.each do |c|
+      mean += c.aptitud
+    end
+    @prom.push( (mean.to_f/@poblacion.length).round(3))
     return bestApti, i
 
   end
@@ -109,68 +145,66 @@ class Algoritmo_Genetico_Para_NReinas
 
   def auxSamplingSelection()
     n = @poblacion.length
-    summationUi = 0
-
-    i=0
-    while i<n do
-      summationUi = summationUi + @poblacion[i].aptitud*-1
-      i+=1
-    end
-
-    probability = Array.new(n)
-
-    i=0
-    while i<n do
-      Float plty = (@poblacion[i].aptitud*-1).to_f/summationUi.to_f
-      probability[i] = plty
-      i+=1
-    end
     
-    print " \n"
-    qiScores = Array.new(n)
 
-    i=0
-    while i<n do
-      qiScore=0
-
-      j=0
-      while j<=i do
-        qiScore = probability[j] + qiScore
-        j+=1
-      end
-
-      qiScores[i] = qiScore
-
-      i+=1
+    ##SE SUMAN LAS APTITUD DE CADA UNO DE LOS CROMOSOMAS DE LA POBLACIÓN
+    summationUi = 0
+    @poblacion.each do |cromo|
+      summationUi -= cromo.aptitud
     end
+   # puts "Suma aptitudes: #{summationUi} "
+    
 
-    return qiScores
+    #SE CALCULA LA PROBABILIDAD A CADA CROMOSOMA DE LA FORMA
+    ## aptitud/suma Y SE ALMACENA EN CADA POSICIÓN probability
+    probability = Array.new(n)
+    @poblacion.each_with_index do |cromo, i|
+      plty = -cromo.aptitud.to_f/summationUi
+      probability[i] = plty.round(6)
+      
+    end
+   # print "Probability: #{probability} \n"
+    ##SE CALCULAR LAS PROBABILIDADES ACUMULADAS DE probability 
+    ## Y SE ALMACENA EN LAS POSICIONES DE qiscores
+    qiScores =probability
+    qiScores.each_with_index do |prob, i|
+      if i !=0
+        qiScores[i] += qiScores[i-1]
+      end    
+    end
+   # print "QiScores #{qiScores}\n"
+
+    return qiScores.unshift(0) ##SE AGREGA 0 COMO PRIMER ELEMENTO 
 
   end
 
 
 
-  def SamplingSelection(kSelect)
-    selectedIndexes = Array.new(kSelect) #Array that will contain the indexes of the selected chromosomes
+  def samplingSelection(kSelect)
+    selectedIndexes = Array.new(kSelect) #ARREGLO QUE ALMACENA ÍNDICES DE CROMOSOMAS SELECCIONADOS
     qiScores = auxSamplingSelection()
-    n = qiScores.length
+    n = (qiScores.length) -1 
 
-    for i in (0..kSelect-1)
-      indexGuaranted = rand(1...n-1)
-      compRand = qiScores[indexGuaranted]
+    #for i in (0..kSelect-1)
+    (kSelect).times do |i|
+      compRand =rand().round(4)# qiScores[indexGuaranted]
       indexGen = nil
-      
-      for j in (0..n-2)
+      #puts "CompRand #{compRand}"
+      #for j in (0..n-2)HASTA AQUÍ SI ALGO
+      (n).times do |j|
+        
         if ((qiScores[j] < compRand) && (compRand <= qiScores[j+1]))
-            indexGen = j+1
+            #print "#{j} "
+            indexGen = j
             selectedIndexes[i] = indexGen
         end
 
       end
 
     end
-
-    return selectedIndexes
+    ##SE RETORNA EL ARREGLO CON INDICES SELECCIONADOS
+    ##NO SE TOMAN EN CUENTA VALORES REPETIDOS NI NULOS
+    return selectedIndexes.uniq.compact 
   
   end
 
@@ -199,26 +233,56 @@ class Algoritmo_Genetico_Para_NReinas
 
   end
 
+  def torneo (kselect)
+    selectedIndexed = []
+    (kselect).times do |i|
+      torneo = []## indices seleccionados para torneo
+      aptitudes=[] ## aptitudes de cromosomas en esos indices
+      (1..3).each_with_index do 
+        rand_index = rand(@poblacion.length)
+        if not torneo.include? rand_index
+          torneo.push(rand_index)
+          aptitudes.push(-@poblacion[rand_index].aptitud)
+        end
+    
+      end 
+      #print "torneo: #{torneo} aptitudes #{aptitudes}\n"
+      
 
+     # puts aptitudes.index(aptitudes.max)
+      selectedIndexed.push(aptitudes.index(aptitudes.max))
+    end
+
+    return selectedIndexed.uniq.compact
+  end
+  
+
+      
+        
+          
 
   def tournamentSelection(kSelection) #Funtion for select cromosomes taking 3 rand, k times
-    selectedIndexes = Array.new(kSelection) #Array that will contain the indexes of the selected chromosomes
+    selectedIndexes = Array.new(kSelection) #ARREGLO QUE ALMACENA LOS ÍNDICES DE CROMOSOMAS SELECCIONADOS
     n = @poblacion.length
 
-    for i in (1..kSelection) #For in k times
+    #for i in (1..kSelection) #For in k times
+    (kSelection).times do |i|
       indexGenInitial = rand(n-1) #Index initial of a chromosome that will be compare according aptitude
-      bestAptitud = @poblacion[indexGenInitial].aptitud*-1 #Variable that contain the best aptitud
-
-      for j in (1..2) 
+      bestAptitud = -@poblacion[indexGenInitial].aptitud #Variable that contain the best aptitud
+      puts "Inicial: #{indexGenInitial}"
+      puts "Best Apt: #{bestAptitud}"
+      
+      #for j in (1..2)
+      (1..2).each do |j| 
         indexGen = rand(n-1) #Rand number for choosen the cromosome
-        if @poblacion[indexGen].aptitud*-1 < bestAptitud #Choosing the best aptitud
+        if -@poblacion[indexGen].aptitud < bestAptitud #Choosing the best aptitud
            #print ": index trying \n"
           bestAptitud = @poblacion[indexGen].aptitud
           indexGenInitial = indexGen
         end
       end
 
-      selectedIndexes[i-1] = indexGenInitial
+      selectedIndexes[i] = indexGenInitial
 
     end
 
@@ -235,7 +299,7 @@ class Algoritmo_Genetico_Para_NReinas
       evaluateIndividualChromosome(@poblacion[i])
       i+=1
     end
-
+    
   end
 
 
@@ -248,7 +312,7 @@ class Algoritmo_Genetico_Para_NReinas
     leftDia = [n]
     numberRpeatsRight = Array.new(n*2, 0)
     numberRpeatsLeft = Array.new(n*2, 0)
-
+    
     i=0
     queensAttack =0
     
@@ -280,13 +344,14 @@ class Algoritmo_Genetico_Para_NReinas
     
     chromo.aptitud = queensAttack #Set the aptitud value of the chromosome
 
-    print queensAttack
+    # puts queensAttack
+    # print "Cromosoma: #{arrayCromo}\n"
+    # print "Right D: #{rightDia} \n"
+    # print "Left  D: #{leftDia}\n"
     
-    print "#{rightDia} \n"
-    print "#{leftDia} \n"
     
-    print "#{numberRpeatsRight} \n"
-    print "#{numberRpeatsLeft} \n"
+    # print "Repeats R: #{numberRpeatsRight} \n"
+    # print "Repeats L: #{numberRpeatsLeft} \n\n"
 
     return queensAttack
 
@@ -301,15 +366,27 @@ end
 begin
 
 cromosoma = Cromosoma.new(10)
-algoritmo = Algoritmo_Genetico_Para_NReinas.new(6,6)
-algoritmo.evaluateAllChromosomes()
-prueba = algoritmo.tournamentSelection(4)
-print prueba
-ejemplo = algoritmo.auxSamplingSelection()
-print ejemplo
-ejmploSeleccionSam = algoritmo.SamplingSelection(5)
-print ejmploSeleccionSam
-hola = @poblacion.aptitud.sort
-print hola
+algoritmo = Algoritmo_Genetico_Para_NReinas.new(5,16)
+puts "inicial"
+algoritmo.poblacion.each do |c|
+  print "#{c.alelo}\n"
+end
+algoritmo.execute(seleccion=1,reemplazo=1,generaciones =15000  )
+puts "final"
+algoritmo.poblacion.each do |c|
+  print "#{c.alelo}\n"
+end
+
+
+# algoritmo.evaluateAllChromosomes()
+# algoritmo.reemplazoInsercion([1,3], [])
+# prueba = algoritmo.torneo(3)
+# print "#{prueba}\n"
+# ejemplo = algoritmo.auxSamplingSelection()
+# print ejemplo
+#  ejmploSeleccionSam = algoritmo.SamplingSelection(2)
+#  print "#{ejmploSeleccionSam}\n"
+# hola = @poblacion.aptitud.sort
+# print hola
 
 end

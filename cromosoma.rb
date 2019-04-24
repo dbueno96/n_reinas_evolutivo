@@ -25,30 +25,30 @@ class Cromosoma
 
     def mutar ##Mutación por intercambio de dos posiciones del arreglo
     
-        print "#{@alelo} \n"
+       # print "#{@alelo} \n"
         pos1 = rand()
         pos2 = rand()
         @alelo[(pos1*tamano).to_i], @alelo[(pos2*tamano).to_i] = @alelo[(pos2*tamano).to_i],
                                                                  @alelo[(pos1*tamano).to_i]
         
-        puts "mutado"
-        print "#{@alelo} \n"
+       # puts "mutado"
+      #  print "#{@alelo} \n"
         
 
         
         arrayAl = @alelo
 
-        return @alelo
+        return self.alelo
     end
 
 
     def cruzar (cromo) 
         #FALTA ANALIZAR EL CASO EN EL QUE EL RAND DA 0 O EL TAMAÑO DEL TABLERO
         pos = rand() 
-        print @alelo 
-        print "\n"
-        print cromo.alelo
-        print "\n"
+        # print @alelo 
+        # print "\n"
+        # print cromo.alelo
+        # print "\n"
         
         head1 = self.alelo.slice(0, pos*tamano)
         tail1 = self.alelo.slice(pos*tamano , self.tamano)
@@ -59,11 +59,12 @@ class Cromosoma
         self.alelo= head1 +tail2
         cromo= head2 + tail1
      
-        puts "cruzados"
-        print @alelo 
-        print "\n"
-        print cromo
-        print "\n"
+        # puts "cruzados"
+        # print @alelo 
+        # print "\n"
+        # print cromo
+        # print "\n"
+        return [self.alelo, cromo]
 
     end
 
@@ -93,4 +94,4 @@ end
 generator = Random.new(3) 
 cro = Cromosoma.new (5)
 cro2 = Cromosoma.new(5)
-cro.cruzar(cro2)
+#print "cruce = #{cro.cruzar(cro2)}"
