@@ -21,6 +21,7 @@ class Cromosoma
         @alelo.each_with_index do |variable, index| 
             #puts ("el valor en la posición #{index} es: #{variable}")
         end
+	puts("cromosoma creado: #{alelo}")
     end
 
     

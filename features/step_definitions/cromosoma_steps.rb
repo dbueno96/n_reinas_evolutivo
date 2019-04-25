@@ -1,7 +1,9 @@
-Given
-
+Given /^cromosoma creado$/ do |alelo|
+   cromosoma = alelo.match
+   puts("el cromosoma es #{cromosoma}")
 end
 
+=begin
 When 
 
 end
@@ -10,5 +12,5 @@ end
 Then
 
 end
-
+=end
 
