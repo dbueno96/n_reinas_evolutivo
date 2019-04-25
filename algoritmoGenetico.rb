@@ -1,4 +1,5 @@
-
+require 'rubygems'
+require 'bundler/setup'
 load 'cromosoma.rb'
 
 class Algoritmo_Genetico_Para_NReinas

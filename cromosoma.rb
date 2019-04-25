@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'bundler/setup'
 class Cromosoma
     
     attr_accessor :alelo, :aptitud
